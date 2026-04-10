@@ -1,0 +1,1 @@
+# shamanicca-ecommerce-wp-theme-checkout
