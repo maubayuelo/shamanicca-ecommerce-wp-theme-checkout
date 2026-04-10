@@ -1,0 +1,54 @@
+# ─── macOS ───────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+# ─── Editor / IDE ────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# ─── WordPress / WooCommerce ─────────────────────────────────
+# Never commit credentials or environment config
+wp-config.php
+wp-config-local.php
+.env
+.env.*
+
+# WP auto-generated files
+*.log
+debug.log
+error_log
+php_errorlog
+
+# WordPress uploads (media library) — not theme files
+uploads/
+
+# ─── Node / Build tools (if ever added) ──────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+build/
+.cache/
+
+# ─── Sass / CSS source maps ──────────────────────────────────
+*.css.map
+*.scss.map
+
+# ─── Backups & temp files ────────────────────────────────────
+*.bak
+*.orig
+*.tmp
+*.temp
