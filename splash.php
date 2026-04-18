@@ -129,13 +129,36 @@
       </div>
     </div>
 
-    <!-- ── RIGHT PANEL — hero ──────────────────────────────── -->
-    <div class="hidden lg:flex lg:w-[54%] hero-bg relative items-end p-12">
-      <!-- Subtle overlay quote -->
-      <p class="text-white/30 text-xs font-light tracking-[0.3em] uppercase select-none">
+    <!-- ── RIGHT PANEL — hero (only rendered when image file exists) ── -->
+    <?php
+      $hero_file = get_stylesheet_directory() . '/images/splash-hero.jpg';
+      $hero_url  = esc_url( get_stylesheet_directory_uri() . '/images/splash-hero.jpg' );
+      $has_hero  = file_exists( $hero_file );
+    ?>
+    <?php if ( $has_hero ) : ?>
+    <div id="splash-hero-panel" class="hidden lg:flex lg:w-[54%] hero-bg relative items-end p-12">
+      <!-- Overlay quote — hidden until image confirms loaded via JS -->
+      <p id="splash-overlay-text" class="opacity-0 transition-opacity duration-500 text-white/30 text-xs font-light tracking-[0.3em] uppercase select-none">
         Mindfulness · Alchemy · Shamanism
       </p>
     </div>
+    <script>
+      (function () {
+        var img = new Image();
+        img.onload = function () {
+          // Image loaded — reveal the overlay text
+          var el = document.getElementById('splash-overlay-text');
+          if (el) el.classList.replace('opacity-0', 'opacity-100');
+        };
+        img.onerror = function () {
+          // Image failed to load (e.g. 404) — hide the right panel entirely
+          var panel = document.getElementById('splash-hero-panel');
+          if (panel) panel.style.display = 'none';
+        };
+        img.src = '<?php echo $hero_url; ?>';
+      })();
+    </script>
+    <?php endif; ?>
 
   </div>
 
