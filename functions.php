@@ -314,7 +314,17 @@ add_action( 'wp_loaded', function () {
 add_filter( 'woocommerce_get_cart_url', function () {
     return defined( 'WP_DEBUG' ) && WP_DEBUG
         ? 'http://localhost:3000/cart'
-        : 'https://shamanicca.com/cart';
+        : 'https://beta.shamanicca.com/cart';
+} );
+
+// Allow wp_safe_redirect() to send users to the Next.js frontend domains.
+// Without this, WordPress blocks cross-domain redirects and falls back to
+// admin_url(), causing every WooCommerce empty-cart redirect to land on
+// wp-login.php instead of the Next.js cart page.
+add_filter( 'allowed_redirect_hosts', function ( $hosts ) {
+    $hosts[] = 'beta.shamanicca.com';
+    $hosts[] = 'shamanicca.com';
+    return $hosts;
 } );
 
 
@@ -887,3 +897,78 @@ add_action( 'wp', function () {
         echo '</div>';
     }, 5 );
 } );
+
+
+// ============================================================
+// 2b. HEADLESS CHECKOUT — browser-side cart population
+//
+//     The Next.js cart page navigates the browser directly to:
+//     https://master.shamanicca.com/?headless_checkout=1&items=ID:QTY,ID:QTY
+//
+//     WordPress adds items to the WC cart within the browser's own
+//     HTTP request (so WC can set the session cookie in the response),
+//     then redirects the browser to /checkout/ with the cart populated.
+// ============================================================
+
+add_action( 'wp_loaded', function () {
+    if ( ! isset( $_GET['headless_checkout'] ) || '1' !== $_GET['headless_checkout'] ) {
+        return;
+    }
+
+    if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+        return;
+    }
+
+    $items_param = isset( $_GET['items'] ) ? sanitize_text_field( wp_unslash( $_GET['items'] ) ) : '';
+
+    if ( empty( $items_param ) ) {
+        wp_safe_redirect( wc_get_cart_url() );
+        exit;
+    }
+
+    WC()->cart->empty_cart();
+
+    foreach ( explode( ',', $items_param ) as $pair ) {
+        $parts      = explode( ':', trim( $pair ) );
+        $product_id = absint( $parts[0] ?? 0 );
+        $quantity   = absint( $parts[1] ?? 1 );
+        if ( $product_id > 0 && $quantity > 0 ) {
+            WC()->cart->add_to_cart( $product_id, $quantity );
+        }
+    }
+
+    wp_safe_redirect( wc_get_checkout_url() );
+    exit;
+} );
+
+
+// ============================================================
+// 10. SPLASH PAGE — intercepts all WordPress frontend pages
+//     and renders the branded holding page instead.
+//     Bypassed for: WooCommerce checkout/cart/order, REST API,
+//     GraphQL, sitemaps, feeds, and wp-admin.
+// ============================================================
+
+add_action( 'template_redirect', function () {
+    // Allow WooCommerce transactional pages through
+    if ( function_exists( 'is_checkout' ) && is_checkout() ) return;
+    if ( function_exists( 'is_cart' ) && is_cart() ) return;
+    if ( function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'order-received' ) ) return;
+
+    // Allow REST API (WooCommerce Store API, WPGraphQL HTTP, etc.)
+    if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) return;
+    $uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
+    if ( strpos( $uri, '/wp-json/' ) !== false ) return;
+    if ( strpos( $uri, '/graphql' ) !== false ) return;
+
+    // Allow feeds and sitemaps
+    if ( is_feed() ) return;
+    if ( function_exists( 'is_robots' ) && is_robots() ) return;
+
+    // Render splash and stop WordPress template loading
+    $splash = get_stylesheet_directory() . '/splash.php';
+    if ( file_exists( $splash ) ) {
+        include $splash;
+        exit;
+    }
+}, 1 );
