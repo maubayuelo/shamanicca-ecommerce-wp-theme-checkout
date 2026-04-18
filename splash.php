@@ -35,15 +35,18 @@
   </script>
   <style>
     * { font-family: 'Poppins', sans-serif; }
+    /* Image present — no overlay, pure photo */
     .hero-bg {
-      background-image:
-        linear-gradient(160deg,
-          rgba(26, 10, 46, 0.92) 0%,
-          rgba(74, 35, 90, 0.80) 40%,
-          rgba(15, 10, 20, 0.96) 100%),
-        url('<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/images/splash-hero.jpg');
+      background-image: url('<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/images/splash-hero.jpg');
       background-size: cover;
       background-position: center;
+    }
+    /* No image fallback — solid brand gradient */
+    .hero-gradient {
+      background: linear-gradient(160deg,
+        #1a0a2e 0%,
+        #675dff 55%,
+        #371b97 100%);
     }
     @keyframes fade-up {
       from { opacity: 0; transform: translateY(18px); }
@@ -111,7 +114,8 @@
         <div class="animate-fade-up-delay-4 flex flex-col sm:flex-row gap-3 pt-2">
           <a
             href="https://shamanicca.com"
-            class="inline-flex items-center justify-center gap-2 bg-primary text-white text-sm font-semibold tracking-wide px-7 py-4 rounded-site-sm lg:rounded-site-lg hover:bg-primary-dark transition-colors duration-300"
+            style="border-radius:10px;"
+            class="inline-flex items-center justify-center gap-2 bg-primary text-white text-sm font-semibold tracking-wide px-7 py-4 hover:bg-primary-dark transition-colors duration-300"
           >
             Explore the Collection
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -136,8 +140,8 @@
       $has_hero  = file_exists( $hero_file );
     ?>
     <?php if ( $has_hero ) : ?>
-    <!-- Right panel hidden by default via inline style; JS reveals it only after image loads -->
-    <div id="splash-hero-panel" class="hidden lg:flex lg:w-[54%] hero-bg relative items-end p-12" style="opacity:0;transition:opacity 0.6s ease;">
+    <!-- Right panel: starts as gradient fallback, swaps to photo once JS confirms load -->
+    <div id="splash-hero-panel" class="hidden lg:flex lg:w-[54%] hero-gradient relative items-end p-12" style="transition:opacity 0.6s ease;">
       <p class="text-white/30 text-xs font-light tracking-[0.3em] uppercase select-none">
         Mindfulness · Alchemy · Shamanism
       </p>
@@ -147,14 +151,27 @@
         var panel = document.getElementById('splash-hero-panel');
         var img   = new Image();
         img.onload = function () {
-          if (panel) panel.style.opacity = '1';
+          if (!panel) return;
+          panel.style.opacity = '0';
+          setTimeout(function () {
+            panel.classList.remove('hero-gradient');
+            panel.classList.add('hero-bg');
+            panel.style.opacity = '1';
+          }, 300);
         };
         img.onerror = function () {
-          if (panel) panel.style.display = 'none';
+          // Image broken — keep gradient, nothing to do
         };
         img.src = '<?php echo $hero_url; ?>';
       })();
     </script>
+    <?php else : ?>
+    <!-- No image file — show gradient panel directly -->
+    <div class="hidden lg:flex lg:w-[54%] hero-gradient relative items-end p-12">
+      <p class="text-white/30 text-xs font-light tracking-[0.3em] uppercase select-none">
+        Mindfulness · Alchemy · Shamanism
+      </p>
+    </div>
     <?php endif; ?>
 
   </div>
