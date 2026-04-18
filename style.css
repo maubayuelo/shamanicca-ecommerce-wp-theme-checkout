@@ -1178,7 +1178,6 @@ body.shamanicca-thankyou #page {
   align-items: start;
   max-width: 100% !important;
   box-sizing: border-box !important;
-  overflow-x: clip;
 }
 
 /* col2-set (billing wrapper) — left column, rows 1–2 */
@@ -1979,4 +1978,14 @@ body.woocommerce-checkout #order_review .shamanicca-express-pay-block {
   .wc-stripe-express-checkout-element-button-wrapper--sticky {
     display: none !important;
   }
+}
+
+/* ============================================================
+   UPPERCASE SIZE VALUES — checkout order review & cart
+   ============================================================ */
+.woocommerce-checkout .variation dd,
+.woocommerce-cart .variation dd,
+.wc-block-components-order-summary-item__description,
+.wc-block-cart-item__description dd {
+  text-transform: uppercase;
 }
