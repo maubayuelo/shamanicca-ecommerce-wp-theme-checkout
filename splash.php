@@ -136,23 +136,20 @@
       $has_hero  = file_exists( $hero_file );
     ?>
     <?php if ( $has_hero ) : ?>
-    <div id="splash-hero-panel" class="hidden lg:flex lg:w-[54%] hero-bg relative items-end p-12">
-      <!-- Overlay quote — hidden until image confirms loaded via JS -->
-      <p id="splash-overlay-text" class="opacity-0 transition-opacity duration-500 text-white/30 text-xs font-light tracking-[0.3em] uppercase select-none">
+    <!-- Right panel hidden by default via inline style; JS reveals it only after image loads -->
+    <div id="splash-hero-panel" class="hidden lg:flex lg:w-[54%] hero-bg relative items-end p-12" style="opacity:0;transition:opacity 0.6s ease;">
+      <p class="text-white/30 text-xs font-light tracking-[0.3em] uppercase select-none">
         Mindfulness · Alchemy · Shamanism
       </p>
     </div>
     <script>
       (function () {
-        var img = new Image();
+        var panel = document.getElementById('splash-hero-panel');
+        var img   = new Image();
         img.onload = function () {
-          // Image loaded — reveal the overlay text
-          var el = document.getElementById('splash-overlay-text');
-          if (el) el.classList.replace('opacity-0', 'opacity-100');
+          if (panel) panel.style.opacity = '1';
         };
         img.onerror = function () {
-          // Image failed to load (e.g. 404) — hide the right panel entirely
-          var panel = document.getElementById('splash-hero-panel');
           if (panel) panel.style.display = 'none';
         };
         img.src = '<?php echo $hero_url; ?>';
