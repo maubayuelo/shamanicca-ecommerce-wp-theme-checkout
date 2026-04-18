@@ -15,13 +15,19 @@
         extend: {
           fontFamily: { poppins: ['Poppins', 'sans-serif'] },
           colors: {
+            primary: '#675dff',
+            'primary-light': '#e7e1ff',
+            'primary-dark': '#371b97',
             brand: {
               50:  '#f5f0ff',
               100: '#ede3ff',
-              500: '#7c5cbf',
-              700: '#4e2d8c',
               900: '#1a0a2e',
             },
+          },
+          borderRadius: {
+            'site-sm': '15px',
+            'site-md': '18px',
+            'site-lg': '24px',
           },
         },
       },
@@ -88,7 +94,7 @@
         <h1 class="animate-fade-up-delay-1 text-4xl lg:text-5xl xl:text-[3.25rem] font-bold leading-[1.12] text-stone-900">
           Sacred Style<br />
           for the<br />
-          <span class="text-brand-700">Modern Mystic</span>
+          <span class="text-primary">Modern Mystic</span>
         </h1>
 
         <!-- H2 / sub-headline -->
@@ -105,7 +111,7 @@
         <div class="animate-fade-up-delay-4 flex flex-col sm:flex-row gap-3 pt-2">
           <a
             href="https://shamanicca.com"
-            class="inline-flex items-center justify-center gap-2 bg-stone-900 text-white text-sm font-semibold tracking-wide px-7 py-4 hover:bg-brand-700 transition-colors duration-300"
+            class="inline-flex items-center justify-center gap-2 bg-primary text-white text-sm font-semibold tracking-wide px-7 py-4 rounded-site-sm lg:rounded-site-lg hover:bg-primary-dark transition-colors duration-300"
           >
             Explore the Collection
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
