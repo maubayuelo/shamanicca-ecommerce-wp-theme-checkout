@@ -57,17 +57,18 @@
     <!-- ── LEFT PANEL ─────────────────────────────────────── -->
     <div class="flex flex-col justify-between px-8 py-10 lg:px-16 lg:py-14 lg:w-[46%] bg-white z-10 h-full overflow-y-auto">
 
-      <!-- Logo -->
+      <!-- Logo — same source as checkout page (WordPress Customizer logo) -->
       <div class="animate-fade-up">
         <a href="https://shamanicca.com" aria-label="Shamanicca home">
           <?php
-            $logo = get_stylesheet_directory() . '/images/shamanicca-logo.svg';
-            if ( file_exists( $logo ) ) :
+            $logo_id  = get_theme_mod( 'custom_logo' );
+            $logo_url = $logo_id ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';
           ?>
+          <?php if ( $logo_url ) : ?>
             <img
-              src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/shamanicca-logo.svg' ); ?>"
+              src="<?php echo esc_url( $logo_url ); ?>"
               alt="Shamanicca"
-              class="h-7 w-auto"
+              style="height:34px;width:auto;display:block;"
             />
           <?php else : ?>
             <span class="text-xl font-bold tracking-tight text-stone-900">Shamanicca</span>
