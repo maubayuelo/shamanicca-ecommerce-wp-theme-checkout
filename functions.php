@@ -413,6 +413,32 @@ add_filter( 'body_class', function ( $classes ) {
 
 
 // ============================================================
+// 6b. THANK YOU PAGE — signal React site to clear its cart
+//
+//     Both master.shamanicca.com (WooCommerce) and shamanicca.com
+//     (React frontend) share the parent domain .shamanicca.com, so a
+//     cookie set here with domain=.shamanicca.com is readable by the
+//     React app on page load. The React app detects the cookie,
+//     clears its localStorage cart, then deletes the cookie.
+//     This keeps the cart in sync without a webhook or URL param.
+// ============================================================
+
+add_action( 'woocommerce_thankyou', function () {
+    $is_debug  = defined( 'WP_DEBUG' ) && WP_DEBUG;
+    $domain    = $is_debug ? '' : '.shamanicca.com';
+    $domain_js = $is_debug ? '' : '; domain=.shamanicca.com';
+    ?>
+    <script>
+    (function () {
+        try {
+            document.cookie = 'shamanicca_order_complete=1; path=/<?php echo $domain_js; ?>; SameSite=Lax; max-age=3600';
+        } catch (e) {}
+    })();
+    </script>
+    <?php
+}, 5 );
+
+// ============================================================
 // 7. THANK YOU PAGE — "What happens next" section
 //    woocommerce_thankyou fires after order details on the
 //    order-received page and passes the order ID.
@@ -932,7 +958,32 @@ add_action( 'wp_loaded', function () {
         $parts      = explode( ':', trim( $pair ) );
         $product_id = absint( $parts[0] ?? 0 );
         $quantity   = absint( $parts[1] ?? 1 );
-        if ( $product_id > 0 && $quantity > 0 ) {
+        $size_value = isset( $parts[2] ) ? sanitize_text_field( $parts[2] ) : '';
+
+        if ( $product_id <= 0 || $quantity <= 0 ) continue;
+
+        $wc_product = wc_get_product( $product_id );
+        if ( ! $wc_product ) continue;
+
+        if ( $size_value && $wc_product instanceof WC_Product_Variable ) {
+            $variation_id    = 0;
+            $variation_attrs = [];
+
+            foreach ( $wc_product->get_available_variations() as $v ) {
+                foreach ( $v['attributes'] as $attr_key => $attr_value ) {
+                    if ( stripos( $attr_key, 'size' ) !== false &&
+                         strtolower( $attr_value ) === strtolower( $size_value ) ) {
+                        $variation_id    = $v['variation_id'];
+                        $variation_attrs = $v['attributes'];
+                        break 2;
+                    }
+                }
+            }
+
+            if ( $variation_id ) {
+                WC()->cart->add_to_cart( $product_id, $quantity, $variation_id, $variation_attrs );
+            }
+        } else {
             WC()->cart->add_to_cart( $product_id, $quantity );
         }
     }
