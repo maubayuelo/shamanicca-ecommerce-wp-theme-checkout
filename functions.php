@@ -5,6 +5,20 @@
  */
 
 // ============================================================
+// 0. NOINDEX — master.shamanicca.com is checkout-only; block all
+//    crawlers via HTTP header + meta tag so no page is ever listed.
+// ============================================================
+
+add_action( 'send_headers', function () {
+    header( 'X-Robots-Tag: noindex, nofollow', true );
+} );
+
+add_action( 'wp_head', function () {
+    echo '<meta name="robots" content="noindex, nofollow">' . "\n";
+}, 1 );
+
+
+// ============================================================
 // 1. ENQUEUE PARENT + CHILD STYLES + GOOGLE FONTS (Poppins)
 // ============================================================
 
